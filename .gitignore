@@ -1,0 +1,27 @@
+# Python virtual environment
+.venv/
+
+# Python cache files
+__pycache__/
+*.py[cod]
+
+# Test and coverage files
+.pytest_cache/
+.coverage
+htmlcov/
+
+# Environment variables and secrets
+.env
+
+# Editor settings
+.vscode/
+# Python packaging
+build/
+dist/
+*.egg-info/
+
+# Environment-specific configuration
+.env.*
+
+# Keep example environment templates if needed
+!.env.example

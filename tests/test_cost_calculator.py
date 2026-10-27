@@ -64,3 +64,14 @@ def test_estimate_terraform_cost():
 
     assert result["total_monthly_cost"] == 20.0
     assert result["status"] == "FAIL"
+
+
+from cloud_cost.cost_calculator import estimate_resources_cost
+
+
+def test_empty_resources_raises_error():
+    with pytest.raises(
+        ValueError,
+        match="No supported resources found",
+    ):
+        estimate_resources_cost([], budget=15)

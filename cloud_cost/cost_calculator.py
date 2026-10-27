@@ -26,6 +26,8 @@ def calculate_monthly_cost(region, resource_type, instance_type):
 
 def estimate_resources_cost(resources, budget):
     """Estimate monthly costs for resources and check the total budget."""
+    if not resources:
+        raise ValueError("No supported resources found in the Terraform file.")
 
     from cloud_cost.policy import check_budget
 

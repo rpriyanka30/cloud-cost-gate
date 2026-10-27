@@ -27,7 +27,7 @@ def main():
             args.terraform_file,
             args.budget,
         )
-    except (ValueError, KeyError) as error:
+    except (ValueError, KeyError, FileNotFoundError) as error:
         parser.error(str(error))
 
     print("\nCloud-Cost-Gate: Cost Analysis")

@@ -57,6 +57,12 @@ def parse_terraform_file(file_path):
                 if instance_type is None:
                     instance_type = attributes.get("instance_class")
 
+                # Read the database engine for RDS pricing.
+                engine = attributes.get("engine")
+                if isinstance(engine, str):
+                    engine = engine.strip('"')
+
+                
                 # Read the storage size.
                 storage = attributes.get("allocated_storage")
 
@@ -71,17 +77,21 @@ def parse_terraform_file(file_path):
                     if root_device:
                         storage = root_device[0].get("volume_size")
 
+                # Save every resource, whether or not it has storage.
                 resources.append({
-                        "resource_type": resource_type.strip('"'),
-                        "name": resource_name.strip('"'),
-                        "instance_type": (
-                            instance_type.strip('"')
-                            if isinstance(instance_type, str)
-                            else instance_type
-                        ),
-                        "storage_gib": storage,
-                        "region": region,
-                    })
+                    "resource_type": resource_type.strip('"'),
+                    "name": resource_name.strip('"'),
+                    "instance_type": (
+                        instance_type.strip('"')
+                        if isinstance(instance_type, str)
+                        else instance_type
+                    ),
+                    "storage_gib": storage,
+                    "engine": engine,
+                    "region": region,
+                })
+
+
 
     return resources
 

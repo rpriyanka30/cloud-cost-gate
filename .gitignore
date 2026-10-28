@@ -25,3 +25,4 @@ dist/
 
 # Keep example environment templates if needed
 !.env.example
+ec2_pricing_test.json

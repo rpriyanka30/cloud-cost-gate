@@ -1,3 +1,4 @@
+
 import pytest
 
 from cloud_cost.cost_calculator import (
@@ -8,27 +9,42 @@ from cloud_cost.cost_calculator import (
 )
 
 
-def test_calculate_hourly_cost():
-    result = calculate_hourly_cost(
-        "us-east-1",
-        "aws_instance",
-        "t3.micro",
+@pytest.fixture
+def mock_pricing(monkeypatch):
+    """Return predictable prices without calling the AWS API."""
+    def fake_get_hourly_price(
+        region, resource_type, instance_type, engine="mysql"
+    ):
+        prices = {
+            ("us-east-1", "aws_instance", "t3.micro"): 0.0104,
+            ("us-east-1", "aws_db_instance", "db.t3.micro"): 0.0170,
+        }
+        key = (region, resource_type, instance_type)
+        if key not in prices:
+            raise ValueError("Unsupported instance type")
+        return prices[key]
+
+    monkeypatch.setattr(
+        "cloud_cost.cost_calculator.get_hourly_price",
+        fake_get_hourly_price,
     )
 
+
+def test_calculate_hourly_cost(mock_pricing):
+    result = calculate_hourly_cost(
+        "us-east-1", "aws_instance", "t3.micro"
+    )
     assert result == 0.0104
 
 
-def test_calculate_monthly_cost():
+def test_calculate_monthly_cost(mock_pricing):
     result = calculate_monthly_cost(
-        "us-east-1",
-        "aws_instance",
-        "t3.micro",
+        "us-east-1", "aws_instance", "t3.micro"
     )
-
     assert round(result, 3) == 7.592
 
 
-def test_estimate_resources_cost():
+def test_estimate_resources_cost(mock_pricing):
     resources = [
         {
             "name": "web_server",
@@ -44,7 +60,7 @@ def test_estimate_resources_cost():
     assert result["status"] == "PASS"
 
 
-def test_estimate_resources_exceeds_budget():
+def test_estimate_resources_exceeds_budget(mock_pricing):
     resources = [
         {
             "name": "web_server",
@@ -55,18 +71,14 @@ def test_estimate_resources_exceeds_budget():
     ]
 
     result = estimate_resources_cost(resources, 5)
-
     assert result["status"] == "FAIL"
 
 
-def test_estimate_terraform_cost():
+def test_estimate_terraform_cost(mock_pricing):
     result = estimate_terraform_cost("examples/main.tf", 15)
 
     assert result["total_monthly_cost"] == 20.0
     assert result["status"] == "FAIL"
-
-
-from cloud_cost.cost_calculator import estimate_resources_cost
 
 
 def test_empty_resources_raises_error():

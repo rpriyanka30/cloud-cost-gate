@@ -1,4 +1,3 @@
-
 import json
 import pytest
 
@@ -25,9 +24,7 @@ class MockPricingClient:
                         "priceDimensions": {
                             "test-dimension": {
                                 "unit": "Hrs",
-                                "pricePerUnit": {
-                                    "USD": str(self.price)
-                                },
+                                "pricePerUnit": {"USD": str(self.price)},
                             }
                         }
                     }
@@ -76,8 +73,7 @@ def test_get_rds_hourly_price(monkeypatch):
 
     filters = mock_client.last_request["Filters"]
     assert any(
-        item["Field"] == "databaseEngine"
-        and item["Value"] == "mysql"
+        item["Field"] == "databaseEngine" and item["Value"] == "mysql"
         for item in filters
     )
 

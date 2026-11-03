@@ -1,8 +1,6 @@
-
 import json
 import boto3
 from botocore.exceptions import BotoCoreError, ClientError
-
 
 # AWS Price List API endpoint region -> AWS service region name.
 AWS_REGION_NAMES = {
@@ -49,11 +47,8 @@ def get_hourly_price(
         raise ValueError("Unsupported instance type: instance type is missing")
 
     service_code = (
-        "AmazonEC2"
-        if resource_type == "aws_instance"
-        else "AmazonRDS"
+        "AmazonEC2" if resource_type == "aws_instance" else "AmazonRDS"
     )
-
     filters = [
         {
             "Type": "TERM_MATCH",
@@ -68,29 +63,53 @@ def get_hourly_price(
     ]
 
     if resource_type == "aws_instance":
-        filters.extend([
-            {"Type": "TERM_MATCH", "Field": "operatingSystem", "Value": "Linux"},
-            {"Type": "TERM_MATCH", "Field": "tenancy", "Value": "Shared"},
-            {"Type": "TERM_MATCH", "Field": "preInstalledSw", "Value": "NA"},
-            {"Type": "TERM_MATCH", "Field": "capacitystatus", "Value": "Used"},
-            {"Type": "TERM_MATCH", "Field": "marketoption", "Value": "OnDemand"},
-        ])
+        filters.extend(
+            [
+                {
+                    "Type": "TERM_MATCH",
+                    "Field": "operatingSystem",
+                    "Value": "Linux",
+                },
+                {
+                    "Type": "TERM_MATCH",
+                    "Field": "tenancy",
+                    "Value": "Shared",
+                },
+                {
+                    "Type": "TERM_MATCH",
+                    "Field": "preInstalledSw",
+                    "Value": "NA",
+                },
+                {
+                    "Type": "TERM_MATCH",
+                    "Field": "capacitystatus",
+                    "Value": "Used",
+                },
+                {
+                    "Type": "TERM_MATCH",
+                    "Field": "marketoption",
+                    "Value": "OnDemand",
+                },
+            ]
+        )
     else:
         if not isinstance(engine, str) or not engine.strip():
             raise ValueError("RDS engine must be specified")
 
-        filters.extend([
-            {
-                "Type": "TERM_MATCH",
-                "Field": "databaseEngine",
-                "Value": engine,
-            },
-            {
-                "Type": "TERM_MATCH",
-                "Field": "deploymentOption",
-                "Value": "Single-AZ",
-            },
-        ])
+        filters.extend(
+            [
+                {
+                    "Type": "TERM_MATCH",
+                    "Field": "databaseEngine",
+                    "Value": engine,
+                },
+                {
+                    "Type": "TERM_MATCH",
+                    "Field": "deploymentOption",
+                    "Value": "Single-AZ",
+                },
+            ]
+        )
 
     try:
         client = boto3.client("pricing", region_name="us-east-1")
@@ -122,8 +141,11 @@ def get_hourly_price(
             )
 
     except (BotoCoreError, ClientError) as exc:
+        raise RuntimeError(f"Could not fetch live AWS pricing: {exc}") from exc
+
+    except json.JSONDecodeError as exc:
         raise RuntimeError(
-            f"Could not fetch live AWS pricing: {exc}"
+            "AWS Pricing API returned invalid JSON product data."
         ) from exc
 
     raise ValueError(

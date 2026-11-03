@@ -1,4 +1,3 @@
-
 import pytest
 
 from cloud_cost.cost_calculator import (
@@ -12,6 +11,7 @@ from cloud_cost.cost_calculator import (
 @pytest.fixture
 def mock_pricing(monkeypatch):
     """Return predictable prices without calling the AWS API."""
+
     def fake_get_hourly_price(
         region, resource_type, instance_type, engine="mysql"
     ):
@@ -31,16 +31,12 @@ def mock_pricing(monkeypatch):
 
 
 def test_calculate_hourly_cost(mock_pricing):
-    result = calculate_hourly_cost(
-        "us-east-1", "aws_instance", "t3.micro"
-    )
+    result = calculate_hourly_cost("us-east-1", "aws_instance", "t3.micro")
     assert result == 0.0104
 
 
 def test_calculate_monthly_cost(mock_pricing):
-    result = calculate_monthly_cost(
-        "us-east-1", "aws_instance", "t3.micro"
-    )
+    result = calculate_monthly_cost("us-east-1", "aws_instance", "t3.micro")
     assert round(result, 3) == 7.592
 
 

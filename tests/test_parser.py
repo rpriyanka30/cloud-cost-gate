@@ -6,11 +6,6 @@ import pytest
 
 from cloud_cost.parser import main, parse_terraform_file
 
-from pathlib import Path
-
-from cloud_cost.parser import parse_terraform_file
-
-
 PROJECT_ROOT = Path(__file__).resolve().parents[1]
 SAMPLE_FILE = PROJECT_ROOT / "examples" / "main.tf"
 
@@ -25,9 +20,7 @@ def test_parser_detects_ec2_instance():
     resources = parse_terraform_file(SAMPLE_FILE)
 
     ec2 = next(
-        resource
-        for resource in resources
-        if resource["name"] == "web_server"
+        resource for resource in resources if resource["name"] == "web_server"
     )
 
     assert ec2["resource_type"] == "aws_instance"
@@ -69,7 +62,7 @@ def test_parser_uses_unknown_region_when_provider_missing(tmp_path):
         'resource "aws_instance" "test_server" {\n'
         '  ami = "ami-12345678"\n'
         '  instance_type = "t3.micro"\n'
-        '}\n',
+        "}\n",
         encoding="utf-8",
     )
 
@@ -95,7 +88,7 @@ def test_parser_detects_resource_with_missing_instance_type(tmp_path):
     terraform_file.write_text(
         'resource "aws_instance" "test_server" {\n'
         '  ami = "ami-12345678"\n'
-        '}\n',
+        "}\n",
         encoding="utf-8",
     )
 
@@ -111,10 +104,10 @@ def test_parser_detects_root_block_storage(tmp_path):
     terraform_file.write_text(
         'resource "aws_instance" "server" {\n'
         '  instance_type = "t3.micro"\n'
-        '  root_block_device {\n'
-        '    volume_size = 30\n'
-        '  }\n'
-        '}\n',
+        "  root_block_device {\n"
+        "    volume_size = 30\n"
+        "  }\n"
+        "}\n",
         encoding="utf-8",
     )
 

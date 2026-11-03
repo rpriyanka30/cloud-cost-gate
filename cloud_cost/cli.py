@@ -34,10 +34,7 @@ def main():
     print("=" * 35)
 
     for resource in result["resources"]:
-        print(
-            f"{resource['name']}: "
-            f"${resource['monthly_cost']:.2f}/month"
-        )
+        print(f"{resource['name']}: " f"${resource['monthly_cost']:.2f}/month")
 
     print("-" * 35)
     print(f"Estimated monthly total: ${result['total_monthly_cost']:.2f}")
@@ -45,7 +42,7 @@ def main():
     print(f"Status:                  {result['status']}")
     print(f"Message:                 {result['message']}")
     if result["status"] == "FAIL":
-      raise SystemExit(1)
+        raise SystemExit(1)
 
 
 if __name__ == "__main__":

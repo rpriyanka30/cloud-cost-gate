@@ -11,39 +11,36 @@ def parse_terraform_file(file_path):
     with open(file_path, "r", encoding="utf-8") as file:
         data = hcl2.load(file)
 
-
     resources = []
     region = "unknown"
 
-   
     # Find the AWS region.
     providers = data.get("provider", [])
 
     for provider in providers:
-      if not isinstance(provider, dict):
-        continue
-
-      for provider_name, aws_config in provider.items():
-        # Remove quotation marks added by the parser.
-        provider_name = provider_name.strip('"')
-
-        if provider_name != "aws":
+        if not isinstance(provider, dict):
             continue
 
-        if isinstance(aws_config, list):
-            configs = aws_config
-        else:
-            configs = [aws_config]
+        for provider_name, aws_config in provider.items():
+            # Remove quotation marks added by the parser.
+            provider_name = provider_name.strip('"')
 
-        for config in configs:
-            if isinstance(config, dict):
-                region_value = config.get("region", region)
+            if provider_name != "aws":
+                continue
 
-                if isinstance(region_value, str):
-                    region = region_value.strip('"')
-                else:
-                    region = region_value
+            if isinstance(aws_config, list):
+                configs = aws_config
+            else:
+                configs = [aws_config]
 
+            for config in configs:
+                if isinstance(config, dict):
+                    region_value = config.get("region", region)
+
+                    if isinstance(region_value, str):
+                        region = region_value.strip('"')
+                    else:
+                        region = region_value
 
     # Read the resource blocks.
     for block in data.get("resource", []):
@@ -62,14 +59,11 @@ def parse_terraform_file(file_path):
                 if isinstance(engine, str):
                     engine = engine.strip('"')
 
-                
                 # Read the storage size.
                 storage = attributes.get("allocated_storage")
 
                 if storage is None:
-                    root_device = attributes.get(
-                        "root_block_device", []
-                    )
+                    root_device = attributes.get("root_block_device", [])
 
                     if isinstance(root_device, dict):
                         root_device = [root_device]
@@ -78,20 +72,20 @@ def parse_terraform_file(file_path):
                         storage = root_device[0].get("volume_size")
 
                 # Save every resource, whether or not it has storage.
-                resources.append({
-                    "resource_type": resource_type.strip('"'),
-                    "name": resource_name.strip('"'),
-                    "instance_type": (
-                        instance_type.strip('"')
-                        if isinstance(instance_type, str)
-                        else instance_type
-                    ),
-                    "storage_gib": storage,
-                    "engine": engine,
-                    "region": region,
-                })
-
-
+                resources.append(
+                    {
+                        "resource_type": resource_type.strip('"'),
+                        "name": resource_name.strip('"'),
+                        "instance_type": (
+                            instance_type.strip('"')
+                            if isinstance(instance_type, str)
+                            else instance_type
+                        ),
+                        "storage_gib": storage,
+                        "engine": engine,
+                        "region": region,
+                    }
+                )
 
     return resources
 
@@ -100,16 +94,12 @@ def main():
     cli = argparse.ArgumentParser(
         description="Analyze Terraform infrastructure."
     )
-
-    cli.add_argument(
-        "path",
-        help="Path to a Terraform .tf file"
-    )
+    cli.add_argument("path", help="Path to a Terraform .tf file")
 
     cli.add_argument(
         "--json",
         action="store_true",
-        help="Display the results as JSON"
+        help="Display the results as JSON",
     )
 
     args = cli.parse_args()

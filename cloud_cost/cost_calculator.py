@@ -1,4 +1,3 @@
-
 from cloud_cost.parser import parse_terraform_file
 from cloud_cost.pricing import get_hourly_price
 
@@ -6,7 +5,6 @@ from cloud_cost.pricing import get_hourly_price
 def calculate_hourly_cost(
     region, resource_type, instance_type, engine="mysql"
 ):
-    """Calculate the hourly cost of one AWS resource."""
 
     hourly_price = get_hourly_price(
         region,
@@ -21,7 +19,6 @@ def calculate_hourly_cost(
 def calculate_monthly_cost(
     region, resource_type, instance_type, engine="mysql"
 ):
-    """Estimate monthly cost assuming 730 hours per month."""
 
     hourly_cost = calculate_hourly_cost(
         region,
@@ -55,10 +52,12 @@ def estimate_resources_cost(resources, budget):
         monthly_cost = hourly_cost * 730
         total_monthly_cost += monthly_cost
 
-        resource_costs.append({
-            "name": resource["name"],
-            "monthly_cost": round(monthly_cost, 2),
-        })
+        resource_costs.append(
+            {
+                "name": resource["name"],
+                "monthly_cost": round(monthly_cost, 2),
+            }
+        )
 
     budget_result = check_budget(total_monthly_cost, budget)
 

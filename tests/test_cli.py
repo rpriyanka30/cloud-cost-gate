@@ -1,4 +1,3 @@
-
 import pytest
 
 from cloud_cost.cli import main
@@ -44,9 +43,7 @@ def test_cli_passes_when_cost_is_within_budget(
     assert "Within budget." in output
 
 
-def test_cli_fails_when_cost_exceeds_budget(
-    monkeypatch, capsys, mock_pricing
-):
+def test_cli_fails_when_cost_exceeds_budget(monkeypatch, capsys, mock_pricing):
     monkeypatch.setattr(
         "sys.argv",
         ["cli.py", "examples/main.tf", "--budget", "15"],

@@ -10,6 +10,10 @@ on:
     branches:
       - master
 
+permissions:
+  contents: read
+  id-token: write
+
 jobs:
   cost-check:
     name: Run Cloud Cost Gate
@@ -30,6 +34,14 @@ jobs:
           pip install -r requirements.txt
           pip install pytest
 
+      - name: Configure AWS credentials
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          role-to-assume: arn:aws:iam::989240881273:role/CloudCostGateGitHubRole
+          aws-region: us-east-1
+
       - name: Run automated tests
         run: python -m pytest -v
- 
+
+      - name: Run Cloud Cost Gate
+        run: python -m cloud_cost.cli examples/main.tf --budget 25

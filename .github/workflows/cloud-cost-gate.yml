@@ -43,6 +43,25 @@ jobs:
           test -n "$ACTIONS_ID_TOKEN_REQUEST_URL" && echo "OIDC URL available" || echo "OIDC URL missing"
           test -n "$ACTIONS_ID_TOKEN_REQUEST_TOKEN" && echo "OIDC request token available" || echo "OIDC request token missing"
 
+      
+      - name: Inspect OIDC claims safely
+        shell: bash
+        run: |
+          set -o pipefail
+          curl --fail --silent --show-error \
+            -H "Authorization: bearer $ACTIONS_ID_TOKEN_REQUEST_TOKEN" \
+            "${ACTIONS_ID_TOKEN_REQUEST_URL}&audience=sts.amazonaws.com" |
+          python -c '
+          import sys, json, base64
+          token = json.load(sys.stdin)["value"]
+          payload = token.split(".")[1]
+          payload += "=" * (-len(payload) % 4)
+          claims = json.loads(base64.urlsafe_b64decode(payload))
+          print("Issuer:", claims.get("iss"))
+          print("Audience:", claims.get("aud"))
+          print("Subject:", claims.get("sub"))
+          '
+      
       - name: Configure AWS credentials
         uses: aws-actions/configure-aws-credentials@v4
         with:

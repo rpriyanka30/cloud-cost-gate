@@ -18,3 +18,5 @@ resource "aws_db_instance" "app_database" {
   allocated_storage = 20
   engine            = "mysql"
 }
+# Testing Cloud-Cost-Gate pull request workflow
+# Pull Request test - new branch change

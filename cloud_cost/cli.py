@@ -1,5 +1,5 @@
 import argparse
-
+from cloud_cost.report import generate_markdown_report
 from cloud_cost.cost_calculator import estimate_terraform_cost
 
 
@@ -20,7 +20,13 @@ def main():
         help="Maximum monthly budget in USD",
     )
 
-    args = parser.parse_args()
+    parser.add_argument(
+        "--report",
+        help="Path to save the Markdown cost report",
+    )
+
+    args = parser.parse_args()      
+    
 
     try:
         result = estimate_terraform_cost(
@@ -41,6 +47,13 @@ def main():
     print(f"Monthly budget:          ${result['budget']:.2f}")
     print(f"Status:                  {result['status']}")
     print(f"Message:                 {result['message']}")
+    if args.report:
+        markdown_report = generate_markdown_report(result)
+
+        with open(args.report, "w", encoding="utf-8") as file:
+            file.write(markdown_report)
+
+        print(f"Markdown report saved to: {args.report}")
     if result["status"] == "FAIL":
         raise SystemExit(1)
 

@@ -1,4 +1,3 @@
-
 from cloud_cost.parser import (
     parse_terraform_file,
     parse_terraform_files,

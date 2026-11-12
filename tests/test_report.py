@@ -1,4 +1,3 @@
-
 from cloud_cost.report import generate_markdown_report
 
 

@@ -168,31 +168,31 @@ def test_parser_detects_resources_across_multiple_files(tmp_path):
     database_file = tmp_path / "database.tf"
 
     provider_file.write_text(
-        'provider "aws" {\n'
-        '  region = "us-east-1"\n'
-        '}\n',
+        'provider "aws" {\n' '  region = "us-east-1"\n' "}\n",
         encoding="utf-8",
     )
 
     compute_file.write_text(
         'resource "aws_instance" "web_server" {\n'
         '  instance_type = "t3.micro"\n'
-        '}\n',
+        "}\n",
         encoding="utf-8",
     )
 
     database_file.write_text(
         'resource "aws_db_instance" "app_database" {\n'
         '  instance_class = "db.t3.micro"\n'
-        '}\n',
+        "}\n",
         encoding="utf-8",
     )
 
-    resources = parse_terraform_files([
-        provider_file,
-        compute_file,
-        database_file,
-    ])
+    resources = parse_terraform_files(
+        [
+            provider_file,
+            compute_file,
+            database_file,
+        ]
+    )
 
     assert len(resources) == 2
     assert {r["name"] for r in resources} == {
@@ -201,11 +201,12 @@ def test_parser_detects_resources_across_multiple_files(tmp_path):
     }
     assert all(r["region"] == "us-east-1" for r in resources)
 
+
 def test_rds_storage_type_is_not_assumed(tmp_path):
     terraform_file = tmp_path / "main.tf"
 
     terraform_file.write_text(
-        '''
+        """
 provider "aws" {
     region = "us-east-1"
 }
@@ -216,7 +217,7 @@ resource "aws_db_instance" "test_db" {
     allocated_storage = 20
     engine = "mysql"
 }
-''',
+""",
         encoding="utf-8",
     )
 
@@ -225,11 +226,12 @@ resource "aws_db_instance" "test_db" {
     assert len(resources) == 1
     assert resources[0]["volume_type"] is None
 
+
 def test_parser_rejects_multi_az_rds(tmp_path):
     terraform_file = tmp_path / "multi_az.tf"
 
     terraform_file.write_text(
-        '''
+        """
 provider "aws" {
     region = "us-east-1"
 }
@@ -242,7 +244,7 @@ resource "aws_db_instance" "test_db" {
     engine = "mysql"
     multi_az = true
 }
-''',
+""",
         encoding="utf-8",
     )
 

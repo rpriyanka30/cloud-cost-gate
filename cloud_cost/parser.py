@@ -1,4 +1,3 @@
-
 import argparse
 import json
 from pathlib import Path
@@ -12,9 +11,7 @@ def parse_terraform_file(file_path):
     file_path = Path(file_path)
 
     if not file_path.is_file():
-        raise FileNotFoundError(
-            f"No such file or directory: '{file_path}'"
-        )
+        raise FileNotFoundError(f"No such file or directory: '{file_path}'")
 
     if file_path.suffix != ".tf":
         raise ValueError(f"Not a Terraform file: {file_path}")
@@ -35,9 +32,7 @@ def parse_terraform_file(file_path):
                 continue
 
             configs = (
-                aws_config
-                if isinstance(aws_config, list)
-                else [aws_config]
+                aws_config if isinstance(aws_config, list) else [aws_config]
             )
 
             for config in configs:
@@ -66,10 +61,7 @@ def parse_terraform_file(file_path):
                 if isinstance(multi_az, str):
                     multi_az = multi_az.strip('"').lower() == "true"
 
-                if (
-                    resource_type == "aws_db_instance"
-                    and multi_az is True
-                ):
+                if resource_type == "aws_db_instance" and multi_az is True:
                     raise ValueError(
                         "Multi-AZ RDS is not currently supported: "
                         f"{resource_name}"
@@ -92,18 +84,14 @@ def parse_terraform_file(file_path):
                 volume_type = attributes.get("storage_type")
 
                 if storage is None:
-                    root_device = attributes.get(
-                        "root_block_device", []
-                    )
+                    root_device = attributes.get("root_block_device", [])
 
                     if isinstance(root_device, dict):
                         root_device = [root_device]
 
                     if root_device:
                         storage = root_device[0].get("volume_size")
-                        volume_type = root_device[0].get(
-                            "volume_type"
-                        )
+                        volume_type = root_device[0].get("volume_type")
 
                 if isinstance(volume_type, str):
                     volume_type = volume_type.strip('"')
@@ -148,9 +136,7 @@ def parse_terraform_files(file_paths):
     # Find the AWS region across all files.
     for path in paths:
         if not path.is_file():
-            raise FileNotFoundError(
-                f"No such file or directory: '{path}'"
-            )
+            raise FileNotFoundError(f"No such file or directory: '{path}'")
 
         if path.suffix != ".tf":
             raise ValueError(f"Not a Terraform file: {path}")

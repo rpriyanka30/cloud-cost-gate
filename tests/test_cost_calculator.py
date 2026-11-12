@@ -1,4 +1,3 @@
-
 import pytest
 
 from cloud_cost.cost_calculator import (
@@ -58,16 +57,12 @@ def mock_pricing(monkeypatch):
 
 
 def test_calculate_hourly_cost(mock_pricing):
-    result = calculate_hourly_cost(
-        "us-east-1", "aws_instance", "t3.micro"
-    )
+    result = calculate_hourly_cost("us-east-1", "aws_instance", "t3.micro")
     assert result == 0.0104
 
 
 def test_calculate_monthly_cost(mock_pricing):
-    result = calculate_monthly_cost(
-        "us-east-1", "aws_instance", "t3.micro"
-    )
+    result = calculate_monthly_cost("us-east-1", "aws_instance", "t3.micro")
     assert round(result, 3) == 7.592
 
 
@@ -129,30 +124,28 @@ def test_estimate_multiple_terraform_files(mock_pricing, tmp_path):
     database_file = tmp_path / "database.tf"
 
     provider_file.write_text(
-        'provider "aws" {\n'
-        '  region = "us-east-1"\n'
-        '}\n',
+        'provider "aws" {\n' '  region = "us-east-1"\n' "}\n",
         encoding="utf-8",
     )
 
     compute_file.write_text(
         'resource "aws_instance" "web_server" {\n'
         '  instance_type = "t3.micro"\n'
-        '  root_block_device {\n'
-        '    volume_size = 20\n'
+        "  root_block_device {\n"
+        "    volume_size = 20\n"
         '    volume_type = "gp3"\n'
-        '  }\n'
-        '}\n',
+        "  }\n"
+        "}\n",
         encoding="utf-8",
     )
 
     database_file.write_text(
         'resource "aws_db_instance" "app_database" {\n'
         '  instance_class = "db.t3.micro"\n'
-        '  allocated_storage = 20\n'
+        "  allocated_storage = 20\n"
         '  storage_type = "gp2"\n'
         '  engine = "mysql"\n'
-        '}\n',
+        "}\n",
         encoding="utf-8",
     )
 

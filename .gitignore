@@ -39,3 +39,20 @@ cost-report*.md
 config-test.md
 directory-report.md
 multi-file-report.md
+
+# Terraform generated files
+.terraform/
+*.tfstate
+*.tfstate.*
+*.tfplan
+*.plan
+crash.log
+crash.*.log
+
+# Terraform variable files (may contain secrets)
+*.tfvars
+*.tfvars.json
+
+# Operating system files
+.DS_Store
+Thumbs.db

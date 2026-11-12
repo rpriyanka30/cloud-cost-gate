@@ -16,6 +16,7 @@ resource "aws_db_instance" "app_database" {
   identifier        = "cloud-cost-gate-db"
   instance_class    = "db.t3.micro"
   allocated_storage = 20
+  storage_type      = "gp2"
   engine            = "mysql"
 }
 # Testing Cloud-Cost-Gate pull request workflow

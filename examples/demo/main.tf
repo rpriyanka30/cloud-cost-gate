@@ -21,3 +21,4 @@ resource "aws_db_instance" "app_database" {
 }
 # Testing Cloud-Cost-Gate pull request workflow
 # Pull Request test - new branch change
+# Phase 5: Validate Cloud-Cost-Gate pull request workflow

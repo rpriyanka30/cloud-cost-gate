@@ -1,4 +1,3 @@
-
 def generate_markdown_report(result):
     """Generate a Markdown cost report for a GitHub Pull Request."""
 
@@ -32,19 +31,23 @@ def generate_markdown_report(result):
             f"| ${resource_total:.2f} |"
         )
 
-    lines.extend([
-        "",
-        f"**Estimated Monthly Total:** ${total:.2f}",
-        f"**Monthly Budget:** ${budget:.2f}",
-        f"**Result:** {result['message']}",
-        "",
-        "---",
-        "",
-        "*Pricing source: AWS Price List API.*",
-        "*Compute estimate assumes 730 hours per month.*",
-        "*Storage estimate uses the configured storage size and type.*",
-        "*This estimate excludes data transfer, snapshots, backups, taxes, "
-        "discounts, and other unmodeled charges.*",
-    ])
+    lines.extend(
+        [
+            "",
+            f"**Estimated Monthly Total:** ${total:.2f}",
+            f"**Monthly Budget:** ${budget:.2f}",
+            f"**Result:** {result['message']}",
+            "",
+            "---",
+            "",
+            "*Pricing source: AWS Price List API.*",
+            "*Compute estimate assumes 730 hours per month.*",
+            "*Storage estimate uses the configured storage size and type.*",
+            (
+                "*This estimate excludes data transfer, snapshots, "
+                "backups, taxes, discounts, and other unmodeled charges.*"
+            ),
+        ]
+    )
 
     return "\n".join(lines) + "\n"

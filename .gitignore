@@ -33,3 +33,9 @@ ec2_pricing_test.json
 # Private keys and certificates
 *.pem
 *.key
+
+# Generated cost reports
+cost-report*.md
+config-test.md
+directory-report.md
+multi-file-report.md

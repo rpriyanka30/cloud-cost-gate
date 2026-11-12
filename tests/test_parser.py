@@ -158,3 +158,93 @@ def test_parser_cli_rejects_non_tf_file(monkeypatch, tmp_path):
         main()
 
     assert result.value.code == 2
+
+
+def test_parser_detects_resources_across_multiple_files(tmp_path):
+    from cloud_cost.parser import parse_terraform_files
+
+    provider_file = tmp_path / "provider.tf"
+    compute_file = tmp_path / "compute.tf"
+    database_file = tmp_path / "database.tf"
+
+    provider_file.write_text(
+        'provider "aws" {\n'
+        '  region = "us-east-1"\n'
+        '}\n',
+        encoding="utf-8",
+    )
+
+    compute_file.write_text(
+        'resource "aws_instance" "web_server" {\n'
+        '  instance_type = "t3.micro"\n'
+        '}\n',
+        encoding="utf-8",
+    )
+
+    database_file.write_text(
+        'resource "aws_db_instance" "app_database" {\n'
+        '  instance_class = "db.t3.micro"\n'
+        '}\n',
+        encoding="utf-8",
+    )
+
+    resources = parse_terraform_files([
+        provider_file,
+        compute_file,
+        database_file,
+    ])
+
+    assert len(resources) == 2
+    assert {r["name"] for r in resources} == {
+        "web_server",
+        "app_database",
+    }
+    assert all(r["region"] == "us-east-1" for r in resources)
+
+def test_rds_storage_type_is_not_assumed(tmp_path):
+    terraform_file = tmp_path / "main.tf"
+
+    terraform_file.write_text(
+        '''
+provider "aws" {
+    region = "us-east-1"
+}
+
+resource "aws_db_instance" "test_db" {
+    identifier = "test-db"
+    instance_class = "db.t3.micro"
+    allocated_storage = 20
+    engine = "mysql"
+}
+''',
+        encoding="utf-8",
+    )
+
+    resources = parse_terraform_file(terraform_file)
+
+    assert len(resources) == 1
+    assert resources[0]["volume_type"] is None
+
+def test_parser_rejects_multi_az_rds(tmp_path):
+    terraform_file = tmp_path / "multi_az.tf"
+
+    terraform_file.write_text(
+        '''
+provider "aws" {
+    region = "us-east-1"
+}
+
+resource "aws_db_instance" "test_db" {
+    identifier = "test-db"
+    instance_class = "db.t3.micro"
+    allocated_storage = 20
+    storage_type = "gp2"
+    engine = "mysql"
+    multi_az = true
+}
+''',
+        encoding="utf-8",
+    )
+
+    with pytest.raises(ValueError, match="Multi-AZ RDS"):
+        parse_terraform_file(terraform_file)

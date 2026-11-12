@@ -201,11 +201,13 @@ def get_storage_price_per_gib_month(
     ]
 
     if resource_type == "aws_instance":
-        filters.append({
-            "Type": "TERM_MATCH",
-            "Field": "productFamily",
-            "Value": "Storage",
-        })
+        filters.append(
+            {
+                "Type": "TERM_MATCH",
+                "Field": "productFamily",
+                "Value": "Storage",
+            }
+        )
         expected_usage_suffix = f"EBS:VolumeUsage.{storage_type}"
 
     else:
@@ -219,32 +221,30 @@ def get_storage_price_per_gib_month(
         aws_engine = engine_names.get(engine.lower())
 
         if aws_engine is None:
-            raise ValueError(
-                f"Unsupported RDS storage engine: {engine}"
-            )
+            raise ValueError(f"Unsupported RDS storage engine: {engine}")
 
-        filters.extend([
-            {
-                "Type": "TERM_MATCH",
-                "Field": "productFamily",
-                "Value": "Database Storage",
-            },
-            {
-                "Type": "TERM_MATCH",
-                "Field": "databaseEngine",
-                "Value": aws_engine,
-            },
-            {
-                "Type": "TERM_MATCH",
-                "Field": "deploymentOption",
-                "Value": "Single-AZ",
-            },
-        ])
+        filters.extend(
+            [
+                {
+                    "Type": "TERM_MATCH",
+                    "Field": "productFamily",
+                    "Value": "Database Storage",
+                },
+                {
+                    "Type": "TERM_MATCH",
+                    "Field": "databaseEngine",
+                    "Value": aws_engine,
+                },
+                {
+                    "Type": "TERM_MATCH",
+                    "Field": "deploymentOption",
+                    "Value": "Single-AZ",
+                },
+            ]
+        )
 
         expected_usage_suffix = (
-            "RDS:GP2-Storage"
-            if storage_type == "gp2"
-            else "RDS:GP3-Storage"
+            "RDS:GP2-Storage" if storage_type == "gp2" else "RDS:GP3-Storage"
         )
 
     try:
@@ -263,9 +263,7 @@ def get_storage_price_per_gib_month(
             for item in response.get("PriceList", []):
                 product = json.loads(item)
 
-                attributes = product.get("product", {}).get(
-                    "attributes", {}
-                )
+                attributes = product.get("product", {}).get("attributes", {})
 
                 usage_type = attributes.get("usagetype", "")
 
@@ -299,4 +297,3 @@ def get_storage_price_per_gib_month(
         f"{storage_type}, in {region}. Check the storage type, "
         "region, engine, and AWS pricing filters."
     )
-

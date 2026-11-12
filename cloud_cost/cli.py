@@ -1,4 +1,3 @@
-
 import argparse
 import math
 from pathlib import Path
@@ -87,7 +86,10 @@ def main():
         else:
             terraform_directory = config.get("terraform_directory", ".")
 
-            if not isinstance(terraform_directory, str) or not terraform_directory.strip():
+            if (
+                not isinstance(terraform_directory, str)
+                or not terraform_directory.strip()
+            ):
                 raise ValueError(
                     "terraform_directory must be a valid directory path."
                 )
@@ -119,7 +121,13 @@ def main():
                 budget,
             )
 
-    except (ValueError, KeyError, FileNotFoundError, OSError, yaml.YAMLError) as error:
+    except (
+        ValueError,
+        KeyError,
+        FileNotFoundError,
+        OSError,
+        yaml.YAMLError,
+    ) as error:
         parser.error(str(error))
 
     print("\nCloud-Cost-Gate: Cost Analysis")

@@ -7,33 +7,44 @@ def generate_markdown_report(result):
     budget = result["budget"]
 
     if status == "PASS":
-        badge = "✅ PASS — Within budget"
+        badge = "PASS - Within budget"
     else:
-        badge = "❌ FAIL — Budget exceeded"
+        badge = "FAIL - Budget exceeded"
 
-    report = [
+    lines = [
         "## Cloud-Cost-Gate Cost Report",
         "",
         f"**Status:** {badge}",
         "",
-        "| AWS Resource | Monthly Cost |",
-        "|---|---:|",
+        "| AWS Resource | Compute / Month | Storage / Month | Total / Month |",
+        "|---|---:|---:|---:|",
     ]
 
     for resource in result["resources"]:
-        report.append(
-            f"| {resource['name']} | "
-            f"${resource['monthly_cost']:.2f} |"
+        compute = resource.get("compute_monthly_cost", 0)
+        storage = resource.get("storage_monthly_cost", 0)
+        resource_total = resource["monthly_cost"]
+
+        lines.append(
+            f"| {resource['name']} "
+            f"| ${compute:.2f} "
+            f"| ${storage:.2f} "
+            f"| ${resource_total:.2f} |"
         )
 
-    report.extend([
+    lines.extend([
         "",
         f"**Estimated Monthly Total:** ${total:.2f}",
         f"**Monthly Budget:** ${budget:.2f}",
         f"**Result:** {result['message']}",
         "",
         "---",
-        "*Generated automatically by Cloud-Cost-Gate.*",
+        "",
+        "*Pricing source: AWS Price List API.*",
+        "*Compute estimate assumes 730 hours per month.*",
+        "*Storage estimate uses the configured storage size and type.*",
+        "*This estimate excludes data transfer, snapshots, backups, taxes, "
+        "discounts, and other unmodeled charges.*",
     ])
 
-    return "\n".join(report)
+    return "\n".join(lines) + "\n"

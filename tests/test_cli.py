@@ -22,9 +22,21 @@ def mock_pricing(monkeypatch):
 
         return prices[key]
 
+    def fake_get_storage_price(
+        region, resource_type, storage_type, engine="mysql"
+    ):
+        if resource_type == "aws_instance":
+            return 0.08
+        return 0.115
+
     monkeypatch.setattr(
         "cloud_cost.cost_calculator.get_hourly_price",
         fake_get_hourly_price,
+    )
+
+    monkeypatch.setattr(
+        "cloud_cost.cost_calculator.get_storage_price_per_gib_month",
+        fake_get_storage_price,
     )
 
 
